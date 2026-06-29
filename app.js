@@ -24,6 +24,36 @@ const TABLE_MODES = [
   { id: "encyclopedia", label: "事典" }
 ];
 
+const FINAL_EXAM_AUX_ORDER = [
+  "masi",
+  "mu",
+  "zu",
+  "ji",
+  "su",
+  "ki",
+  "keri",
+  "tu",
+  "nu",
+  "tari-kan",
+  "ramu",
+  "kemu",
+  "besi",
+  "maji",
+  "nari-denbun",
+  "nari-dantei",
+  "tari-dantei"
+];
+
+const FINAL_EXAM_AUX_INDEX = new Map(FINAL_EXAM_AUX_ORDER.map((id, index) => [id, index]));
+const FINAL_EXAM_AUX_IDS = new Set(FINAL_EXAM_AUX_ORDER);
+
+DATA.aux.forEach((entry) => {
+  if (FINAL_EXAM_AUX_IDS.has(entry.id)) {
+    entry.examFocus = true;
+    entry.tags = Array.from(new Set([...(entry.tags || []), "期末"]));
+  }
+});
+
 const FORM_EXAMPLE_PREFIXES = {
   ru: "笑は",
   raru: "ほめ",
@@ -334,11 +364,24 @@ function saveState() {
 }
 
 function entries(categoryId) {
-  return DATA[categoryId] || [];
+  const list = DATA[categoryId] || [];
+  if (categoryId !== "aux") return list;
+
+  return [...list].sort((a, b) => {
+    const focusDiff = Number(Boolean(b.examFocus)) - Number(Boolean(a.examFocus));
+    if (focusDiff) return focusDiff;
+    const aIndex = FINAL_EXAM_AUX_INDEX.has(a.id) ? FINAL_EXAM_AUX_INDEX.get(a.id) : Number.MAX_SAFE_INTEGER;
+    const bIndex = FINAL_EXAM_AUX_INDEX.has(b.id) ? FINAL_EXAM_AUX_INDEX.get(b.id) : Number.MAX_SAFE_INTEGER;
+    return aIndex - bIndex;
+  });
 }
 
 function allEntries() {
   return DATA.categories.flatMap((category) => entries(category.id));
+}
+
+function entryTagText(entry) {
+  return [...(entry.tags || []), entry.level].filter(Boolean).join("・");
 }
 
 function entryKey(entry) {
@@ -892,7 +935,8 @@ function renderCard() {
   const entry = currentCard();
   $("#cardKind").textContent = entry.type;
   $("#cardTitle").textContent = entry.name;
-  $("#cardLevel").textContent = entry.level;
+  $("#cardLevel").textContent = entryTagText(entry);
+  $("#cardLevel").classList.toggle("is-final", Boolean(entry.examFocus));
   $("#cardPrompt").textContent = state.cardCategory === "aux"
     ? "接続・意味・活用"
     : "例語・語尾・活用";
@@ -1538,6 +1582,7 @@ function renderTables() {
       entry.sentence,
       entry.translation,
       entry.note,
+      ...(entry.tags || []),
       ...(entry.meanings || []),
       ...entry.forms,
       ...formExamplesFor(entry),
@@ -1562,7 +1607,9 @@ function renderEntry(entry) {
   const node = template.content.firstElementChild.cloneNode(true);
   $(".entry-type", node).textContent = entry.type;
   $("h3", node).textContent = entry.name;
-  $(".entry-level", node).textContent = entry.level;
+  const levelTag = $(".entry-level", node);
+  levelTag.textContent = entryTagText(entry);
+  levelTag.classList.toggle("is-final", Boolean(entry.examFocus));
 
   const facts = $(".facts", node);
   const factRows = factsFor(entry);
@@ -1633,7 +1680,7 @@ function factsFor(entry) {
 function renderConjugationTable(entry) {
   const grid = document.createElement("div");
   const selectedMeaning = selectedMeaningFor(entry);
-  const showMeaningExamples = entry.type === "助動詞" && entry.meanings?.length > 1 && selectedMeaning;
+  const showMeaningExamples = entry.type === "助動詞" && entry.meanings?.length > 0 && selectedMeaning;
   const showExamples = state.showFormExamples || showMeaningExamples;
   grid.className = "conjugation-grid";
   grid.setAttribute("role", "table");

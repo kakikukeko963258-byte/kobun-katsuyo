@@ -350,6 +350,12 @@ h1 {
   white-space: nowrap;
 }
 
+.tag.is-final {
+  border-color: rgba(183, 122, 0, 0.34);
+  color: #8a5d00;
+  background: #fff4cc;
+}
+
 .prompt {
   margin-top: 14px;
   color: var(--muted);
