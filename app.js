@@ -25,21 +25,21 @@ const TABLE_MODES = [
 ];
 
 const FINAL_EXAM_AUX_ORDER = [
-  "masi",
-  "mu",
+  "su",
   "zu",
   "ji",
-  "su",
-  "ki",
-  "keri",
+  "mu",
+  "masi",
   "tu",
   "nu",
   "tari-kan",
-  "ramu",
   "kemu",
+  "ki",
+  "ramu",
+  "meri",
+  "nari-denbun",
   "besi",
   "maji",
-  "nari-denbun",
   "nari-dantei",
   "tari-dantei"
 ];
