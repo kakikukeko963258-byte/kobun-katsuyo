@@ -1,14 +1,14 @@
-const CACHE_NAME = "kobun-katsuyo-v20";
+const CACHE_NAME = "kobun-katsuyo-v21";
 const ASSETS = [
   "./",
   "./index.html",
-  "./index.html?v=20",
+  "./index.html?v=21",
   "./styles.css",
-  "./styles.css?v=20",
+  "./styles.css?v=21",
   "./data.js",
-  "./data.js?v=20",
+  "./data.js?v=21",
   "./app.js",
-  "./app.js?v=20",
+  "./app.js?v=21",
   "./manifest.webmanifest",
   "./assets/icon.svg",
   "./assets/icon-192.png",
